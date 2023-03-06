@@ -39,7 +39,8 @@ System:
 
   # Logs all monetary transactions passed through CraftConomy in a table.
   Logging:
-    Enabled: false
+    # NONE, LOGGER OR SQL
+    Mode: LOGGER
     
   Database:
     # Databases Supported:
@@ -64,3 +65,6 @@ System:
 
     #the database revision
     dbVersion: 0
+
+    # Query cache
+    EcoCache: 5

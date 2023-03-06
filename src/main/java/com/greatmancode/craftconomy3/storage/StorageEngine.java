@@ -149,6 +149,17 @@ public abstract class StorageEngine {
     public abstract double setBalance(Account account, double amount, Currency currency, String world);
 
     /**
+     * Update the balance of the account
+     *
+     * @param account  The account that the balance is set in.
+     * @param amount   The amount of money being updated
+     * @param currency The Currency
+     * @param world    The world group
+     * @return The new balance
+     */
+    public abstract double updateBalance(Account account, double amount, Currency currency, String world);
+
+    /**
      * Set if the account have infinite money
      *
      * @param account  The account to modify

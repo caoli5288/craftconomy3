@@ -135,6 +135,11 @@ public class SQLiteEngine extends StorageEngine {
     }
 
     @Override
+    public double updateBalance(Account account, double amount, Currency currency, String world) {
+        return 0;
+    }
+
+    @Override
     public void setInfiniteMoney(Account account, boolean infinite) {
 
     }

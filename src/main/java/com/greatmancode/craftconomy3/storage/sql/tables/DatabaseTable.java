@@ -29,7 +29,7 @@ public abstract class DatabaseTable {
         this.prefix = prefix;
     }
 
-    protected String getPrefix() {
+    public String getPrefix() {
         return prefix;
     }
 }

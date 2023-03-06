@@ -381,6 +381,54 @@ public abstract class SQLStorageEngine extends StorageEngine {
     }
 
     @Override
+    public double updateBalance(Account account, double amount, Currency currency, String world) {
+        double value = 0;
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            connection = (commitConnection != null) ? commitConnection : db.getConnection();
+            // Update with session variable
+            statement = connection.prepareStatement("UPDATE " +
+                    balanceTable.getPrefix() +
+                    "balance SET balance=@balance:=balance+? WHERE worldName=? AND username_id=? AND currency_id=?");
+            statement.setDouble(1, amount);
+            statement.setString(2, world);
+            statement.setInt(3, account.getId());
+            statement.setString(4, currency.getName());
+            int affect = statement.executeUpdate();
+            if (affect == 0) {// Not exists
+                value = amount;
+                statement.close();
+                statement = connection.prepareStatement(balanceTable.insertEntry);
+                statement.setDouble(1, amount);
+                statement.setString(2, world);
+                statement.setString(3, account.getAccountName());
+                statement.setBoolean(4, account.isBankAccount());
+                statement.setString(5, currency.getName());
+                statement.executeUpdate();
+                statement.close();
+            } else {
+                statement.close();
+                statement = connection.prepareStatement("SELECT @balance AS balance");
+                ResultSet set = statement.executeQuery();
+                if (set.next()) {
+                    value = set.getDouble("balance");
+                }
+                statement.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new BackendErrorException(e.getMessage());
+        } finally {
+            Tools.closeJDBCStatement(statement);
+            if (commitConnection == null) {
+                Tools.closeJDBCConnection(connection);
+            }
+        }
+        return value;
+    }
+
+    @Override
     public void setInfiniteMoney(Account account, boolean infinite) {
         Connection connection = null;
         PreparedStatement statement = null;

@@ -33,6 +33,7 @@ import com.greatmancode.craftconomy3.currency.Currency;
 import com.greatmancode.craftconomy3.currency.CurrencyManager;
 import com.greatmancode.craftconomy3.events.EventManager;
 import com.greatmancode.craftconomy3.groups.WorldGroupsManager;
+import com.greatmancode.craftconomy3.logging.LogMode;
 import com.greatmancode.craftconomy3.storage.StorageHandler;
 import com.greatmancode.craftconomy3.utils.OldFormatConverter;
 import com.greatmancode.tools.caller.bukkit.BukkitServerCaller;
@@ -47,6 +48,7 @@ import com.greatmancode.tools.utils.FeatherBoard;
 import com.greatmancode.tools.utils.Metrics;
 import com.greatmancode.tools.utils.Tools;
 import com.greatmancode.tools.utils.Updater;
+import org.apache.commons.lang.StringUtils;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
@@ -85,6 +87,7 @@ public class Common implements com.greatmancode.tools.interfaces.Common {
     private DisplayFormat displayFormat = null;
     private double holdings = 0.0;
     private double bankPrice = 0.0;
+    private LogMode logMode;
 
     /**
      * Initialize the Common core.
@@ -151,6 +154,11 @@ public class Common implements com.greatmancode.tools.interfaces.Common {
                 sendConsoleMessage(Level.INFO, getLanguageManager().getString("ready"));
             }
 
+            String logModeName = getMainConfig().getString("System.Logging.Mode");
+            if (StringUtils.isEmpty(logModeName)) {
+                logModeName = "LOGGER";
+            }
+            logMode = LogMode.valueOf(logModeName);
 
             getServerCaller().registerPermission("craftconomy.money.log.others");
             addFeatherboardSupport();
@@ -497,13 +505,12 @@ public class Common implements com.greatmancode.tools.interfaces.Common {
      * @param causeReason The reason of the cause
      * @param account     The account being impacted by the change
      * @param amount      The amount of money in this transaction.
+     * @param balance     The account balance after this transaction.
      * @param currency    The currency associated with this transaction
      * @param worldName   The world name associated with this transaction
      */
-    public void writeLog(LogInfo info, Cause cause, String causeReason, Account account, double amount, Currency currency, String worldName) {
-        if (getMainConfig().getBoolean("System.Logging.Enabled")) {
-            getStorageHandler().getStorageEngine().saveLog(info, cause, causeReason, account, amount, currency, worldName);
-        }
+    public void writeLog(LogInfo info, Cause cause, String causeReason, Account account, double amount, double balance, Currency currency, String worldName) {
+        logMode.writeLog(info, cause, causeReason, account, amount, balance, currency, worldName);
     }
 
     /**
